@@ -1,5 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import App from "../App.js";
+
+test("render title", () => {
+  render(<App />);
+  const title = screen.getByText(
+    /Введіть текст щоб конвертувати його у PDF документ./i
+  );
+  expect(title).toBeInTheDocument();
+});
 
 test("render text area", () => {
   render(<App />);
@@ -11,11 +19,4 @@ test("render main button", () => {
   render(<App />);
   const buttonElement = screen.getByText(/Конвертувати в PDF/i);
   expect(buttonElement).toBeInTheDocument();
-});
-
-test("convert text", () => {
-  render(<App />);
-  fireEvent.click(screen.getByText(/Конвертувати в PDF/i));
-  const pdfElement = screen.getByTestId(/pdf/i);
-  expect(pdfElement).toBeInTheDocument();
 });

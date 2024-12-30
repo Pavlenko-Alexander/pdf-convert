@@ -1,28 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Input from "./components/Input.js";
 import Button from "./components/Button.js";
 import { addItem, getAllItems } from "./indexedDB.js";
 import { convert } from "./utils/convert.js";
+import PDFViewer from "pdf-viewer-reactjs";
 
 function App() {
   const [pdf, setPdf] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [allItems, setAllItems] = useState([]);
+  const doc = useMemo(() => ({ url: pdf }), [pdf]);
 
   const handleConvertText = async () => {
-    const fileUrl = await convert(inputValue);
-    if (fileUrl) {
-      await addItem({ id: inputValue.slice(0, 20), url: fileUrl });
-      setPdf(fileUrl);
+    const file = await convert(inputValue);
+    if (file) {
+      await addItem({
+        id: allItems.length + 1,
+        name: inputValue.slice(0, 20),
+        file: file
+      });
+      setPdf(URL.createObjectURL(file));
       setInputValue("");
     }
   };
 
   useEffect(() => {
-    if (pdf) {
-      const items = getAllItems();
-      setAllItems(items);
-    }
+    const fetchData = async () => {
+      const data = await getAllItems();
+      setAllItems(data);
+    };
+    fetchData();
   }, [pdf]);
 
   const isButtonDisabled = !inputValue;
@@ -43,25 +50,26 @@ function App() {
           text="Конвертувати в PDF"
           disabled={isButtonDisabled}
         />
-        {pdf && (
-          <iframe
-            data-testid="pdf"
-            title="pdf"
-            src="https://arxiv.org/pdf/quant-ph/0410100.pdf"
-            width="100%"
-            height="600px"
-          ></iframe>
-        )}
+        {pdf && doc.url ? (
+          <div>
+            <PDFViewer key={pdf} document={doc} />
+          </div>
+        ) : null}
       </div>
       {allItems.length ? (
         <div className="flex flex-col items-center gap-5">
           <div className="text-xl">Історія</div>
-          <div className="border rounded-xl p-3 flex flex-col gap-1 w-60">
-            {allItems.map((item) => (
-              <button key={item.id} onClick={() => setPdf(item.url)}>
-                {item.id}
-              </button>
-            ))}
+          <div className="border rounded-xl p-3 flex flex-col items-start gap-1 w-60">
+            {allItems
+              .sort((a, b) => a.id - b.id)
+              .map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setPdf(URL.createObjectURL(item.file))}
+                >
+                  {item.name}
+                </button>
+              ))}
           </div>
         </div>
       ) : null}
