@@ -2,34 +2,7 @@ import { useEffect, useState } from "react";
 import Input from "./components/Input.js";
 import Button from "./components/Button.js";
 import { addItem, getAllItems } from "./indexedDB.js";
-
-import { API_URL } from "./constants.js";
-
-const convert = async (data) => {
-  try {
-    const res = await fetch(API_URL, {
-      method: "HEAD",
-      headers: {
-        "Content-Type": "application/json"
-        //     Authorization: "Bearer 78684310-850d-427a-8432-4a6487f6dbc4",
-        // Accept: "application/pdf"
-        // 'Accept': 'application/json, text/plain, */*',
-        // Authorization: "Bearer 78684310-850d-427a-8432-4a6487f6dbc4"
-      },
-      body: JSON.stringify({ text: "Universe" })
-    });
-    console.log(data, res);
-    if (!res.ok) {
-      throw new Error("Failed to convert text");
-    }
-    const myBlob = res.blob();
-    const objectURL = URL.createObjectURL(myBlob);
-    return objectURL;
-  } catch (err) {
-    console.error(err);
-    throw new Error("Failed to convert text");
-  }
-};
+import { convert } from "./utils/convert.js";
 
 function App() {
   const [pdf, setPdf] = useState("");
@@ -80,7 +53,7 @@ function App() {
           ></iframe>
         )}
       </div>
-      {allItems.length && (
+      {allItems.length ? (
         <div className="flex flex-col items-center gap-5">
           <div className="text-xl">Історія</div>
           <div className="border rounded-xl p-3 flex flex-col gap-1 w-60">
@@ -91,7 +64,7 @@ function App() {
             ))}
           </div>
         </div>
-      )}
+      ) : null}
     </main>
   );
 }
