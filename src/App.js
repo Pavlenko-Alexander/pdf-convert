@@ -6,10 +6,10 @@ import { convert } from "./utils/convert.js";
 import PDFViewer from "pdf-viewer-reactjs";
 
 function App() {
-  const [pdf, setPdf] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [allItems, setAllItems] = useState([]);
-  const doc = useMemo(() => ({ url: pdf }), [pdf]);
+  const doc = useMemo(() => ({ url: pdfUrl }), [pdfUrl]);
 
   const handleConvertText = async () => {
     const file = await convert(inputValue);
@@ -19,7 +19,7 @@ function App() {
         name: inputValue.slice(0, 20),
         file: file
       });
-      setPdf(URL.createObjectURL(file));
+      setPdfUrl(URL.createObjectURL(file));
       setInputValue("");
     }
   };
@@ -30,7 +30,7 @@ function App() {
       setAllItems(data);
     };
     fetchData();
-  }, [pdf]);
+  }, [pdfUrl]);
 
   const isButtonDisabled = !inputValue;
 
@@ -50,9 +50,9 @@ function App() {
           text="Конвертувати в PDF"
           disabled={isButtonDisabled}
         />
-        {pdf && doc.url ? (
+        {pdfUrl && doc.url ? (
           <div>
-            <PDFViewer key={pdf} document={doc} />
+            <PDFViewer key={pdfUrl} document={doc} />
           </div>
         ) : null}
       </div>
@@ -65,7 +65,7 @@ function App() {
               .map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setPdf(URL.createObjectURL(item.file))}
+                  onClick={() => setPdfUrl(URL.createObjectURL(item.file))}
                 >
                   {item.name}
                 </button>
